@@ -1,6 +1,7 @@
 // Import an element
 import '@polymer/paper-button/paper-button.js';
 import './paper-audio-player.js';
+import './paper-audio-picker.js';
 
 // Import the PolymerElement base class and html helper
 import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
@@ -29,7 +30,10 @@ class HakkeAudioViewer extends PolymerElement {
           display: none;
         }
       </style>
-      <paper-audio-player color="#F05C38" src="./testMusic.wav"></paper-audio-player>
+      <paper-audio-picker src={{src}}></paper-audio-picker>
+
+      <paper-audio-player color="#F05C38" src=[[src]]></paper-audio-player>
+
     `;
   }
 

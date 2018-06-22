@@ -8,8 +8,6 @@ import '@polymer/iron-icons/av-icons.js';
 import { IronA11yKeysBehavior } from '@polymer/iron-a11y-keys-behavior/iron-a11y-keys-behavior.js';
 import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 
-import './paper-audio-icons.js';
-
 /**
  * `paper-audio-player` Description
  *
@@ -154,7 +152,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     color: var(--paper-audio-player-color, blueviolet);
                 }
                 /* On hover */
-                :host:not(.cantplay) #right:hover #replay {
+                #right:hover #replay {
                     opacity: 1;
                 }
                 #right:hover #duration {
@@ -208,10 +206,9 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     align-self: flex-end;
                 }
             </style>
-
+                
             <div id="wrapper" class="layout-horizontal">
                 <div id="left" class="self-start" on-tap="playPause">
-                [[isPlaying]]
                     <paper-icon-button id="play"
                         icon="av:play-arrow"
                         class="fit"
@@ -228,12 +225,12 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                         aria-label="Pause Audio"
                         tabindex="-1">
                     </paper-icon-button>
-                    <iron-icon id="error" icon="paper-audio-icons:error-outline" class="fit" hidden$="{{ !error }}"></iron-icon>
+                    <iron-icon id="error" icon="av:new-releases" class="fit" hidden$="{{ !error }}"></iron-icon>
                 </div>
 
                 <div id="center" class="flex" on-down="_onDown">
                     <!-- Title -->
-                    <div id="title" class="fit" role="alert">{{title}}</div>
+                    <div id="title" class="fit" role="alert">{{src}} dinle</div>
 
                     <!-- Audio HTML5 element -->
                     <audio id="audio" src="{{ src }}" preload="{{ _setPreload(autoPlay, preload) }}"></audio>
@@ -245,7 +242,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
 
                     <!-- Secondary white title -->
                     <div id="progress2" class="fit">
-                         <div id="title2" aria-hidden="true">{{ title }}</div>
+                         <div id="title2" aria-hidden="true">{{src}} çalıyor</div>
                     </div>
                 </div>
                 <div id="right"
@@ -260,7 +257,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     <!-- Icon -->
                     <paper-icon-button id="replay"
                                     class="fit"
-                                    icon="paper-audio-icons:replay"
+                                    icon="av:replay"
                                     tabindex="-1"
                                     role="button"
                                     aria-label="Replay Audio"></paper-icon-button>
@@ -277,11 +274,25 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
      */
     constructor() {
         super();
-        this.addEventListener('audio.loadedmetadata', this._onCanPlay());
-        this.addEventListener('audio.playing', this._onPlaying());
-        this.addEventListener('audio.pause', this._onPause());
-        this.addEventListener('audio.ended', this._onEnd());
-        this.addEventListener('audio.error', this._onError());
+
+    }
+
+    /**
+      * Called every time the element is inserted into the DOM. Useful for 
+      * running setup code, such as fetching resources or rendering.
+      * Generally, you should try to delay work until this time.
+      */
+    connectedCallback() {
+        super.connectedCallback();
+    
+        
+        this.$.audio.addEventListener('loadedmetadata', () => this._onCanPlay() );
+        this.$.audio.addEventListener('playing', () => this._onPlaying() );
+        this.$.audio.addEventListener('pause', () => this._onPause() );
+        this.$.audio.addEventListener('ended', () => this._onEnd() );
+        this.$.audio.addEventListener('error', () => this._onError() );
+
+
     }
 
     /**
@@ -299,18 +310,16 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
         player.ended = false;
         player.error = false;
         player.$.audio.currentTime = player.timeOffset; // apply the audio start time property
+        
 
-        // If 'ga-id' property is set,
-        // prepare Google Analytics tracker
-        if (!!player.gaId) player._setupGATracking();
     }
 
     // Play/Pause controls
     playPause(e) {
 
-        console.log('playPause', e);
         if (!!e) e.preventDefault();
         var player = this;
+
         if (player.canBePlayed) {
             if (player.isPlaying) {
                 player._pause();
@@ -328,14 +337,10 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
     _play() {
         var player = this;
         player.$.audio.play();
-        // Dispatch 'Play' event to GA
-        if (!!player.gaId) this._dispatchGAEvent('Play');
     }
     _pause() {
         var player = this;
         player.$.audio.pause();
-        // Dispatch 'Pause' event to GA
-        if (!!player.gaId) this._dispatchGAEvent('Pause');
     }
     //
     // Restart audio
@@ -347,6 +352,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
     }
     // when audio file can be played in user's browser
     _onCanPlay() {
+
         var player = this;
         player.canBePlayed = true;
         player.timeLeft = player.$.audio.duration;
@@ -441,7 +447,6 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
     //
     // When user clicks somewhere on the progress bar
     _onDown(e) {
-        console.log('onDown', e);
         e.preventDefault();
         var player = this;
         if (player.canBePlayed) {
