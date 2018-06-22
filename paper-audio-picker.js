@@ -3,6 +3,8 @@ import {
     html
 } from '@polymer/polymer/polymer-element.js';
 
+import '@polymer/iron-icons/iron-icons.js'
+
 /**
  * `paper-audio-picker` Description
  *
@@ -14,24 +16,38 @@ import {
 class PaperAudioPicker extends PolymerElement {
     static get properties() {
         return {
-
+            src: {
+                type: String,
+                notify: true
+            }
         }
     }
 
     static get template() {
         return html `
             <style>
-                #drop-area {
-                border: 2px dashed #ccc;
-                border-radius: 20px;
-                width: 480px;
-                font-family: sans-serif;
-                margin: 100px auto;
-                padding: 20px;
+                #dropArea {
+                    font-size: 1.25rem;
+                    background-color: #c8dadf;
+                    position: relative;
+                    padding: 100px 20px;
+                    outline: 2px dashed #92b0b3;
+                    outline-offset: -10px;
+                    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+                    @apply --shadow-elevation-4dp;
+                    @apply --shadow-transition;
                 }
-                #drop-area.highlight {
-                border-color: purple;
+                #dropArea.highlight {
+                    border-color: purple;
+                    @apply --shadow-elevation-12dp;
+                } 
+
+                #dropArea .box {
+                    @apply --layout-vertical;
+                    @apply --layout-center;
                 }
+
                 p {
                 margin-top: 0;
                 }
@@ -61,13 +77,17 @@ class PaperAudioPicker extends PolymerElement {
                 #fileElem {
                 display: none;
                 }
+               
             </style>
 
-            <div id="drop-area">
-                <form class="my-form">
-                    <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+            <div id="dropArea">
+                <form class="box">
+
+                    <iron-icon icon="icons:file-upload"></iron-icon>
+                    <label for="fileElem"><strong>Dosya Seç</strong><span class="box__dragndrop"> ya da Buraya Sürükle</span>.</label>
+                    <!-- <p>Seçili Ses Dosyası => [[title]]</p> -->
                     <input type="file" id="fileElem" accept="audio/*">
-                    <label class="button" for="fileElem">Select some files</label>
+                    <!-- <label class="button" for="fileElem">Ses Dosyası Seç</label> -->
                 </form>
             </div>
 
@@ -92,7 +112,22 @@ class PaperAudioPicker extends PolymerElement {
         super.connectedCallback();
     
         this.$.fileElem.addEventListener('change', (e) => this.handleFiles(e));
-    
+        
+        let dropArea = this.$.dropArea;
+
+        ['dragenter', 'dragover', 'dragleave','drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => this._preventDefaults(e));
+        });
+
+        ['dragenter','dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => this._highlight(e));
+        });
+
+        ['dragleave','drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => this._unhighlight(e));
+        });
+
+        dropArea.addEventListener('drop', (e) => this._handleDrop(e));
     }
 
     /**
@@ -103,13 +138,57 @@ class PaperAudioPicker extends PolymerElement {
         super.ready();
     }
 
-    handleFiles(event){
+    _preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
+    _handleDrop(e) {
+        let dt = e.dataTransfer;
+        let files = dt.files;
 
-        var files = event.target.files;
-        console.log('src', URL.createObjectURL(files[0]));
+        this._processFiles(files);
+    }
+
+    _processFiles(files) {
+
+        const typeFilter = /audio.*/;
+        let file = files[0];
+        if ( file.type.match(typeFilter) ) {
+            
+            this.set('src', URL.createObjectURL(files[0]));
+            this.set('title', files[0].name);
+        }
+        else {
+            alert('only audio!');
+        }
 
     }
+    
+    handleFiles(event){
+        console.log(event.target.files);
+        var files = event.target.files;
+
+        this._processFiles(files);
+    }
+
+    _highlight(e){
+        this.$.dropArea.classList.add('highlight');
+    }
+
+    _unhighlight(e){
+        this.$.dropArea.classList.remove('highlight');
+    }
+
+    _toggleClass(element, className) {
+        if ( element.classList.contains(className)) {
+            element.classList.remove(className);
+        }
+        else {
+            element.classList.add(className);
+        }
+    }
+
 }
 
 customElements.define('paper-audio-picker', PaperAudioPicker);
