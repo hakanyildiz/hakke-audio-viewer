@@ -16,7 +16,14 @@ import { PolymerElement, html } from '@polymer/polymer/polymer-element.js';
 class HakkeAudioViewer extends PolymerElement {
   static get properties() {
     return {
-        
+        isSelected: {
+          type: Boolean,
+          notify: true
+        },
+        audio: {
+          type: Object,
+          notify: true
+        }
     }
   }
 
@@ -25,14 +32,23 @@ class HakkeAudioViewer extends PolymerElement {
       <style>
         :host {
           display: block;
+          /* master color of element*/
+          --hakke-app-color: #ff7800;
         }
         :host([hidden]) {
           display: none;
         }
-      </style>
-      <paper-audio-picker src={{src}}></paper-audio-picker>
 
-      <paper-audio-player color="#F05C38" src=[[src]]></paper-audio-player>
+        paper-audio-player {
+          margin-top: 10px
+        }
+
+      </style>
+      <paper-audio-picker audio={{audio}} on-select="_handleEvent"></paper-audio-picker>
+        
+      <template is="dom-if" if=[[isSelected]]>
+        <paper-audio-player audio=[[audio]]></paper-audio-player>
+      <template>
 
     `;
   }
@@ -53,6 +69,11 @@ class HakkeAudioViewer extends PolymerElement {
    */
   ready() {
     super.ready();
+  }
+
+  _handleEvent(e) {
+    // console.log('_deselectAudio', e);
+    this.set('isSelected', e.detail.selected);
   }
 }
 

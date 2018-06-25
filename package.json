@@ -9,6 +9,7 @@
     "@polymer/iron-iconset-svg": "^3.0.0-pre.18",
     "@polymer/paper-button": "^3.0.0-pre.18",
     "@polymer/paper-icon-button": "^3.0.0-pre.18",
+    "@polymer/paper-material": "^3.0.0-pre.20",
     "@polymer/paper-progress": "^3.0.0-pre.18",
     "@polymer/paper-ripple": "^3.0.0-pre.18",
     "@polymer/polymer": "^3.0.0"

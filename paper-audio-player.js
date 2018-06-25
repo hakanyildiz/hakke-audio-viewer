@@ -19,9 +19,9 @@ import { mixinBehaviors } from '@polymer/polymer/lib/legacy/class.js';
 class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerElement) {
     static get properties() {
         return {
-            src: {
-                type: String,
-                observer: "_srcChanged"
+            audio: {
+                type: Object,
+                observer: "_audioChanged"
             },
             title: {
                 type: String,
@@ -78,6 +78,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     width: 100%;*/
                     box-sizing: border-box;
                     font-family: 'Roboto Mono', 'Helvetica Neue', Arial, sans-serif;
+
                 }
                 [hidden] {
                     display: none !important;
@@ -95,7 +96,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     position: relative;
                 }
                 #left {
-                    background-color:  var(--paper-audio-player-color, blueviolet);
+                    background-color:  var(--hakke-app-color);
                 }
                 #right {
                     background-color: rgba(255,255,255,.75);
@@ -112,7 +113,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                 }
                 #duration {
                     font-size: 11px;
-                    color: var(--paper-audio-player-color, blueviolet);
+                    color: var(--hakke-app-color);
                 }
                 paper-icon-button,
                 iron-icon {
@@ -120,7 +121,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                 }
                 #replay {
                     opacity: 0;
-                    color: var(--paper-audio-player-color, blueviolet);
+                    color: var(--hakke-app-color);
                 }
                 #title,
                 #progress2 {
@@ -129,7 +130,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                 }
                 #title {
                     z-index: 2;
-                    color: var(--paper-audio-player-color, blueviolet);
+                    color: var(--hakke-app-color);
                 }
                 #progress2 {
                     width: 0px;
@@ -146,10 +147,10 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
                     width: 100%;
                     transform-origin: left;
                     transform: scaleX(0);
-                    background-color: var(--paper-audio-player-color, blueviolet);
+                    background-color: var(--hakke-app-color);
                 }
                 paper-ripple {
-                    color: var(--paper-audio-player-color, blueviolet);
+                    color: var(--hakke-app-color);
                 }
                 /* On hover */
                 #right:hover #replay {
@@ -230,10 +231,10 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
 
                 <div id="center" class="flex" on-down="_onDown">
                     <!-- Title -->
-                    <div id="title" class="fit" role="alert">{{src}} dinle</div>
+                    <div id="title" class="fit" role="alert">{{audio.title}} dinle</div>
 
                     <!-- Audio HTML5 element -->
-                    <audio id="audio" src="{{ src }}" preload="{{ _setPreload(autoPlay, preload) }}"></audio>
+                    <audio id="audio" src="{{ audio.src }}" preload="{{ _setPreload(autoPlay, preload) }}"></audio>
 
                     <!-- Progress bar -->
                     <div id="progress" class="fit"></div>
@@ -242,7 +243,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
 
                     <!-- Secondary white title -->
                     <div id="progress2" class="fit">
-                         <div id="title2" aria-hidden="true">{{src}} çalıyor</div>
+                         <div id="title2" aria-hidden="true">{{audio.title}} çalıyor</div>
                     </div>
                 </div>
                 <div id="right"
@@ -506,7 +507,7 @@ class PaperAudioPlayer extends mixinBehaviors([IronA11yKeysBehavior], PolymerEle
     //
     // If src is changed when track is playing,
     // pause the track and start playing a new src
-    _srcChanged(oldValue, newValue) {
+    _audioChanged(oldValue, newValue) {
         var player = this;
         if (player.isPlaying) {
             player._pause();
